@@ -2,6 +2,8 @@
 
 Small admin dashboard to log in and manage products. Built with **Next.js (App Router) + React + TypeScript + Tailwind CSS + Axios**, on top of the free **DummyJSON API**. All API calls go through one shared Axios client.
 
+**Live demo:** https://product-admin-dashboard-beta.vercel.app
+
 ## Demo credentials
 
 - Username: `emilys`
