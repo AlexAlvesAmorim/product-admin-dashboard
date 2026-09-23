@@ -74,7 +74,10 @@ export default function EditProductPage() {
     setServerError(null);
     try {
       // C3: the API acknowledges but never persists; stage the merged product locally.
-      await updateProduct(display.id, data);
+      // Session-created products don't exist server-side, so skip the PUT for them.
+      if (!store.isLocalOnly(display.id)) {
+        await updateProduct(display.id, data);
+      }
       store.stageUpdate({ ...display, ...data });
       router.push(`/products/${display.id}`);
     } catch (err) {

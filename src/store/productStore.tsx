@@ -22,6 +22,9 @@ interface ProductStore extends OverlayInput {
   stageDelete: (id: number) => void;
   findLocal: (id: number) => Product | undefined;
   isDeleted: (id: number) => boolean;
+  // True for products created in this session: they only exist in the overlay,
+  // so PUT/DELETE against the API would 404 and must be skipped.
+  isLocalOnly: (id: number) => boolean;
 }
 
 const ProductStoreContext = createContext<ProductStore | null>(null);
@@ -63,9 +66,11 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
 
   const isDeleted = useCallback((id: number): boolean => deletedIds.includes(id), [deletedIds]);
 
+  const isLocalOnly = useCallback((id: number): boolean => added.some((p) => p.id === id), [added]);
+
   const value = useMemo<ProductStore>(
-    () => ({ added, updated, deletedIds, stageAdd, stageUpdate, stageDelete, findLocal, isDeleted }),
-    [added, updated, deletedIds, stageAdd, stageUpdate, stageDelete, findLocal, isDeleted],
+    () => ({ added, updated, deletedIds, stageAdd, stageUpdate, stageDelete, findLocal, isDeleted, isLocalOnly }),
+    [added, updated, deletedIds, stageAdd, stageUpdate, stageDelete, findLocal, isDeleted, isLocalOnly],
   );
 
   return <ProductStoreContext.Provider value={value}>{children}</ProductStoreContext.Provider>;

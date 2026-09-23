@@ -18,7 +18,7 @@ interface DeleteProductButtonProps {
 // stages the deletion in the local overlay (C3). Double confirms are ignored (C5).
 export default function DeleteProductButton({ id, title, redirectTo, compact = false }: DeleteProductButtonProps) {
   const router = useRouter();
-  const { stageDelete } = useProductStore();
+  const { stageDelete, isLocalOnly } = useProductStore();
   const [confirming, setConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,11 @@ export default function DeleteProductButton({ id, title, redirectTo, compact = f
     setIsDeleting(true);
     setError(null);
     try {
-      await deleteProduct(id);
+      // Session-created products don't exist server-side; the API call would
+      // 404, so only the overlay changes for them.
+      if (!isLocalOnly(id)) {
+        await deleteProduct(id);
+      }
       stageDelete(id);
       setConfirming(false);
       if (redirectTo) router.replace(redirectTo);
