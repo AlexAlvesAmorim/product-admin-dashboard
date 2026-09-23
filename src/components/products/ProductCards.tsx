@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DeleteProductButton from "@/components/products/DeleteProductButton";
 import type { Product } from "@/types/product";
 import { formatPrice } from "@/utils/format";
 
@@ -24,6 +25,12 @@ export default function ProductCards({ products }: { products: Product[] }) {
             <span className={p.stock < 10 ? "font-medium text-red-600" : "text-zinc-600"}>
               {p.stock} left
             </span>
+          </div>
+          <div className="mt-3 flex items-center gap-4 border-t border-zinc-100 pt-3">
+            <Link href={`/products/${p.id}/edit`} className="text-sm text-zinc-600 hover:underline">
+              Edit
+            </Link>
+            <DeleteProductButton id={p.id} title={p.title} compact />
           </div>
         </article>
       ))}

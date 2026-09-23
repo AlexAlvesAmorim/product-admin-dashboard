@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DeleteProductButton from "@/components/products/DeleteProductButton";
 import type { Product } from "@/types/product";
 import { formatPrice } from "@/utils/format";
 
@@ -14,6 +15,7 @@ export default function ProductTable({ products }: { products: Product[] }) {
             <th scope="col" className="px-4 py-3 font-medium">Price</th>
             <th scope="col" className="px-4 py-3 font-medium">Rating</th>
             <th scope="col" className="px-4 py-3 font-medium">Stock</th>
+            <th scope="col" className="px-4 py-3 font-medium"><span className="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
@@ -35,6 +37,12 @@ export default function ProductTable({ products }: { products: Product[] }) {
               <td className="px-4 py-3 font-medium">{formatPrice(p.price)}</td>
               <td className="px-4 py-3">★ {p.rating}</td>
               <td className={`px-4 py-3 ${p.stock < 10 ? "font-medium text-red-600" : ""}`}>{p.stock}</td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <Link href={`/products/${p.id}/edit`} className="mr-3 text-sm text-zinc-600 hover:underline">
+                  Edit
+                </Link>
+                <DeleteProductButton id={p.id} title={p.title} compact />
+              </td>
             </tr>
           ))}
         </tbody>

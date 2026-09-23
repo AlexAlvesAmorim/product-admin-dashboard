@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { listByCategory, listProducts, searchProducts } from "@/services/products.service";
+import { applyOverlay, useProductStore } from "@/store/productStore";
 import { getSkip } from "@/utils/pagination";
 import { parseSort, type ProductUrlState } from "@/utils/url-state";
 import type { Product } from "@/types/product";
@@ -19,9 +20,11 @@ interface UseProductsResult {
 // Race-safe (C1): every state change aborts the previous request and bumps a
 // monotonic requestId; a late response whose id is stale is ignored, so an old
 // search can never overwrite a newer one.
+// Local CRUD overlay (C3) merges via useMemo — no refetch needed after add/edit/delete.
 export function useProducts(state: ProductUrlState): UseProductsResult {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [total, setTotal] = useState(0);
+  const store = useProductStore();
+  const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  const [apiTotal, setApiTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
@@ -60,8 +63,8 @@ export function useProducts(state: ProductUrlState): UseProductsResult {
     request.then(
       (data) => {
         if (requestId.current !== current) return;
-        setProducts(data.products);
-        setTotal(data.total);
+        setApiProducts(data.products);
+        setApiTotal(data.total);
         setIsLoading(false);
       },
       (err) => {
@@ -74,6 +77,19 @@ export function useProducts(state: ProductUrlState): UseProductsResult {
 
     return () => controller.abort();
   }, [state.page, state.limit, state.q, state.category, state.sort, retryKey]);
+
+  const isDefaultView = !state.q.trim() && !state.category && !state.sort;
+
+  const { products, total } = useMemo(
+    () =>
+      applyOverlay(
+        apiProducts,
+        apiTotal,
+        { added: store.added, updated: store.updated, deletedIds: store.deletedIds },
+        { page: state.page, isDefault: isDefaultView },
+      ),
+    [apiProducts, apiTotal, store.added, store.updated, store.deletedIds, state.page, isDefaultView],
+  );
 
   return { products, total, isLoading, error, retry };
 }

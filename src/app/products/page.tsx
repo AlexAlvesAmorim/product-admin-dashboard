@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "@/hooks/useProducts";
 import ProductTable from "@/components/products/ProductTable";
@@ -93,11 +94,17 @@ function ProductsContent() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
         <SearchInput value={state.q} onSearch={handleSearch} />
         <div className="flex gap-2">
           <CategoryFilter value={state.category} onChange={handleCategoryChange} />
           <SortSelect value={state.sort} onChange={handleSortChange} />
+          <Link
+            href="/products/new"
+            className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-zinc-700"
+          >
+            + Add product
+          </Link>
         </div>
       </div>
       {/* C2: the API cannot combine search + category. Search wins; the
