@@ -15,15 +15,15 @@ interface AuthGuardProps {
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [allowed, setAllowed] = useState(false);
+  // Read once during initial render (client-only component, localStorage is safe).
+  // No setState-in-effect: the effect below only talks to the router.
+  const [allowed] = useState(() => isAuthenticated());
 
   useEffect(() => {
-    if (isAuthenticated()) {
-      setAllowed(true);
-    } else {
+    if (!allowed) {
       router.replace(`/login?next=${encodeURIComponent(pathname)}`);
     }
-  }, [router, pathname]);
+  }, [allowed, router, pathname]);
 
   if (!allowed) {
     return (

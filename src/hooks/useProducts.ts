@@ -32,6 +32,10 @@ export function useProducts(state: ProductUrlState): UseProductsResult {
   useEffect(() => {
     const current = (requestId.current += 1);
     const controller = new AbortController();
+    // Intentional synchronous reset: a new request lifecycle starts here, so the
+    // UI must enter loading state now. Not derived state (what the lint rule
+    // targets) — late responses are still guarded by requestId + abort below.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
     setError(null);
 

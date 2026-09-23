@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Admin dashboard to manage products (Next.js + Axios + DummyJSON)",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
